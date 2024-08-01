@@ -20,6 +20,9 @@
 
 #include "Module.h"
 #include "error.h"
+#include "JsonEngine.h"
+
+#define MOCK_TRANSPORT 1
 
 namespace FireboltSDK {
 
@@ -580,6 +583,7 @@ namespace FireboltSDK {
             _eventHandler = eventHandler;
         }
 
+#ifndef MOCK_TRANSPORT
         template <typename PARAMETERS, typename RESPONSE>
         Firebolt::Error Invoke(const string& method, const PARAMETERS& parameters, RESPONSE& response)
         {
@@ -592,7 +596,22 @@ namespace FireboltSDK {
 
             return (result);
         }
+#else
+        template <typename PARAMETERS, typename RESPONSE>
+        Firebolt::Error Invoke(const string &method, const PARAMETERS &parameters, RESPONSE &response)
+        {
 
+            WPEFramework::Core::JSONRPC::Message message;
+            message.Designator = method;
+
+            Firebolt::Error result = JsonEngine::MockRequest(message, response);
+            FromMessage((INTERFACE *)&response, message);
+
+            return result;
+            // return Firebolt::Error::None;
+        }
+
+#endif
         template <typename PARAMETERS>
         Firebolt::Error InvokeAsync(const string& method, const PARAMETERS& parameters, uint32_t& id)
         {
