@@ -37,6 +37,15 @@ find_package(${NAMESPACE}WebSocket CONFIG REQUIRED)
 find_package(${NAMESPACE}WebSocket CONFIG REQUIRED)
 find_package(${NAMESPACE}Core CONFIG REQUIRED)
 
+include(FetchContent)
+FetchContent_Declare(
+    json 
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
+include_directories(${CMAKE_SOURCE_DIR}/build/_deps/json-src/include)
+
 target_link_libraries(${TARGET}
     PUBLIC
         ${NAMESPACE}WebSocket::${NAMESPACE}WebSocket
