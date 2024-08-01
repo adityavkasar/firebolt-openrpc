@@ -59,11 +59,32 @@ InstallCMakeConfigs(TARGET ${TESTLIB} DESTINATION ${FIREBOLT_NAMESPACE})
 InstallHeaders(TARGET ${TESTLIB} HEADERS . NAMESPACE ${FIREBOLT_NAMESPACE} DESTINATION FireboltTest)
 InstallLibraries(TARGET ${TESTLIB} STATIC LIBRARIES ${TESTLIB} DESTINATION ${FIREBOLT_NAMESPACE})
 
+# Include Google Test
+include(ExternalProject)
+ExternalProject_Add(
+    googletest
+    GIT_REPOSITORY    https://github.com/google/googletest.git
+    GIT_TAG           release-1.11.0
+    PREFIX            ${CMAKE_BINARY_DIR}/googletest
+    INSTALL_DIR       ${CMAKE_BINARY_DIR}/googletest
+    CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/googletest
+)
+
+include(FetchContent)
+FetchContent_Declare(
+    json 
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
+include_directories(${CMAKE_SOURCE_DIR}/build/_deps/json-src/include)
+
 set(TESTAPP "FireboltSDKTestApp")
 
 message("Setup ${TESTAPP}")
 
-add_executable(${TESTAPP} Main.cpp)
+file(GLOB UNIT_TESTS "unit/*")
+add_executable(${TESTAPP} Main.cpp ${UNIT_TESTS})
 
 target_link_libraries(${TESTAPP}
     PRIVATE
